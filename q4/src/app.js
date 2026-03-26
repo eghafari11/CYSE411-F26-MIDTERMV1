@@ -13,6 +13,7 @@ loadSessionBtn.addEventListener("click", loadSession);
 let currentProfile = null;
 
 
+
 /* -------------------------
    Load Profile
 -------------------------- */
@@ -21,12 +22,37 @@ function loadProfile() {
 
     const text = document.getElementById("profileInput").value;
 
-   
-    const profile = JSON.parse(text);
+    let parse;
 
-    currentProfile = profile;
+    try {
+        parse = JSON.parse(text);
+    } catch (e) {
+        alert("Invalid JSON input");
+        return;
+    }
 
-    renderProfile(profile);
+    if (typeof parse !== "object" || parse === null) {
+        alert("Invalid profile object");
+        return;
+    }
+
+    if (typeof parse.username !== "string") {
+        alert("Invalid user");
+        return;
+    }
+
+    if (!Array.isArray(parse.notifications)) {
+        alert("Invalid notification");
+        return;
+    }
+
+    const sProfile = {
+        username: parse.username,
+        notifications: parse.notifications.filter(n => typeof n === "string")
+    };
+
+    currentProfile = sProfile;
+    renderProfile(sProfile);
 }
 
 
@@ -37,17 +63,17 @@ function loadProfile() {
 function renderProfile(profile) {
 
     
-    document.getElementById("username").innerHTML = profile.username;
+    document.getElementById("username").textContent = profile.username;
 
     const list = document.getElementById("notifications");
-    list.innerHTML = "";
+    list.textContent = "";
 
     for (let n of profile.notifications) {
 
         const li = document.createElement("li");
 
         
-        li.innerHTML = n;
+        li.textContent = n;
 
         list.appendChild(li);
     }
@@ -59,22 +85,54 @@ function renderProfile(profile) {
 -------------------------- */
 
 function saveSession() {
-    localStorage.setItem("profile", JSON.stringify(currentProfile));
+    if (!currentProfile || typeof currentProfile !== "object") {
+        alert("No profile to save");
+        return;
+    }
 
+    let validNotifications = [];
+    if (Array.isArray(currentProfile.notifications)) {
+        validNotifications = currentProfile.notifications.filter(item => typeof item === "string");
+    }
+
+    const sProfile = {
+        username: currentProfile.username,
+        notifications: validNotifications
+    };
+
+    localStorage.setItem("profile", JSON.stringify(sProfile));
     alert("Session saved");
 }
 
-
 function loadSession() {
 
-    const stored = localStorage.getItem("profile");
+    const store = localStorage.getItem("profile");
 
-    if (stored) {
+    if (!store) return;
 
-        const profile = JSON.parse(stored);
-
-        currentProfile = profile;
-
-        renderProfile(profile);
+    let parse;
+    try {
+        parse = JSON.parse(store);
+    } catch (e) {
+        alert("Stored session data is corrupted");
+        return;
     }
+
+    if (
+        typeof parse !== "object" ||
+        parse === null ||
+        typeof parse.username !== "string" ||
+        !Array.isArray(parse.notifications)
+    ) {
+        alert("Stored session data is invalid");
+        return;
+    }
+
+    const sProfile = {
+        username: parse.username,
+        notifications: parse.notifications.filter(n => typeof n === "string")
+    };
+
+    currentProfile = sProfile;
+    renderProfile(sProfile);
 }
