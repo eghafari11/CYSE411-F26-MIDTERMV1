@@ -63,20 +63,6 @@ app.post("/login", (req, res) => {
 
 })
 
-        if (err) {
-            return res.status(500).send("Database error")
-        }
-
-        if (rows && rows.length > 0) {
-            res.send("Login success")
-        } else {
-            res.send("Login failed")
-        }
-
-    })
-
-})
-
 
 app.listen(3000, () => {
     console.log("Server running on http://localhost:3000")
