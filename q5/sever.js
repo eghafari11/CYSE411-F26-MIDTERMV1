@@ -43,11 +43,6 @@ app.post("/login", (req, res) => {
     const username = req.body.username
     const password = req.body.password
 
-    app.post("/login", (req, res) => {
-
-    const username = req.body.username
-    const password = req.body.password
-
     const query = "SELECT * FROM users WHERE username = ? AND password = ?"
 
     console.log("\nExecuting SQL with parameters")
