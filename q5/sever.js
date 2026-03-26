@@ -43,17 +43,30 @@ app.post("/login", (req, res) => {
     const username = req.body.username
     const password = req.body.password
 
-    const query =
-        "SELECT * FROM users WHERE username = '" +
-        username +
-        "' AND password = '" +
-        password +
-        "'"
+    app.post("/login", (req, res) => {
 
-    console.log("\nExecuting SQL:")
-    console.log(query)
+    const username = req.body.username
+    const password = req.body.password
 
-    db.all(query, (err, rows) => {
+    const query = "SELECT * FROM users WHERE username = ? AND password = ?"
+
+    console.log("\nExecuting SQL with parameters")
+
+    db.all(query, [username, password], (err, rows) => {
+
+        if (err) {
+            return res.status(500).send("Database error")
+        }
+
+        if (rows && rows.length > 0) {
+            res.send("Login success")
+        } else {
+            res.send("Login failed")
+        }
+
+    })
+
+})
 
         if (err) {
             return res.status(500).send("Database error")
